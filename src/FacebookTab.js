@@ -2,59 +2,30 @@ import { useEffect, useState } from "react";
 import CommonTab from "./CommonTab";
 
 const FacebookTab = ({setStartDate, setEndDate, startDate, endDate}) =>  {
-    const [userData, setUserData] = useState([]);
 
     const [activeTab, setActiveTab] = useState('first');
 
-    const fetchUserData = async (token) => {
-        const url = process.env.REACT_APP_SERVER + ""
-        try {
-          const response = await fetch(`${url}/facebook_callback`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": token
-            },
-          });
-          const data = await response.json();
-          setUserData(data)
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-    };
-
     const authToken = localStorage.getItem("facebook_access_token");
+    const [isFacebookTableDataLoad, setIsFacebookTableDataLoad] = useState(false);
 
     useEffect(() => {
         if (authToken !== null) {
-            setActiveTab('second')
+            setActiveTab('third')
         }
     },[authToken])
 
-    useEffect(() => {
-        if (authToken )
-        if (activeTab == "second") {
-            fetchUserData(authToken)
-        }
-    },[activeTab, authToken])
-
     const handleSelect = (key) => {
         setActiveTab(key)
-        if (key == "second") {
-            if (authToken !== "null") {
-                console.log({authToken})
-                fetchUserData(authToken)
-            }
-        }
     }
 
 
     const [tableData, setTableData] = useState([]);
     const [columns, setColumns] = useState([]);
 
-    const fetchData = async (inputData, authToken) => {  
+    const fetchFacebookData = async (inputData, authToken) => {  
         const url = process.env.REACT_APP_SERVER + ""
         try {
+          setIsFacebookTableDataLoad(true);
           const response = await fetch(`${url}/get-fb-campaign-ids`, {
             method: "POST",
             headers: {
@@ -63,6 +34,7 @@ const FacebookTab = ({setStartDate, setEndDate, startDate, endDate}) =>  {
             },
             body: JSON.stringify(inputData)
           });
+          setIsFacebookTableDataLoad(false);
           const data = await response.json();
           if (data && Array.isArray(data) && data.length > 0) {
             const columnKeys = Object.keys(data[0]);
@@ -71,21 +43,20 @@ const FacebookTab = ({setStartDate, setEndDate, startDate, endDate}) =>  {
             setTableData(data);
           }
         } catch (error) {
+          setIsFacebookTableDataLoad(false);
           console.error('Error fetching data:', error);
         }
-      };
+    };
     
-      const handleSubmit = (userId, selectedManagerId) => {
-        const userData = {
-          "customer_id": userId,
-          "start_date": startDate,
-          "end_date": endDate,
-          "manager_id": selectedManagerId
-        }
-        if (authToken !== "null") {
-            fetchData(userData, authToken);
-        }
-      };
+    // const handleSubmit = () => {
+    //   const userData = {
+    //     "start_date": startDate,
+    //     "end_date": endDate
+    //   }
+    //   if (authToken !== "null") {
+    //       fetchData(userData, authToken);
+    //   }
+    // };
 
   return (
     <CommonTab 
@@ -93,14 +64,14 @@ const FacebookTab = ({setStartDate, setEndDate, startDate, endDate}) =>  {
         setEndDate={setEndDate} 
         startDate={startDate}  
         endDate={endDate}
-        userData={userData}
-        setActiveTab={setActiveTab} 
-        fetchUserData={fetchUserData}
+        setActiveTab={setActiveTab}
         activeTab={activeTab}
         handleSelect={handleSelect}
         columns={columns}
         tableData={tableData}
-        handleSubmit={handleSubmit}
+        facebookAuth={authToken}
+        fetchFacebookData={fetchFacebookData}
+        isGoogleTableDataLoad={isFacebookTableDataLoad}
     />
   );
 };

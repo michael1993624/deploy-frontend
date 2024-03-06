@@ -3,6 +3,7 @@ import Col from "react-bootstrap/Col";
 import Nav from "react-bootstrap/Nav";
 import Row from "react-bootstrap/Row";
 import Tab from "react-bootstrap/Tab";
+import Spinner from 'react-bootstrap/Spinner';
 import "bootstrap/dist/css/bootstrap.min.css";
 import styled from "styled-components";
 import Button from "react-bootstrap/Button";
@@ -10,7 +11,24 @@ import Form from "react-bootstrap/Form";
 import React, { useState } from "react";
 import { useLocation } from 'react-router-dom';
 
-const CommonTab = ({setStartDate, setEndDate, startDate, endDate, userData, setActiveTab, activeTab, handleSelect, tableData, columns, handleSubmit}) => {
+const CommonTab = ({ 
+    setStartDate, 
+    setEndDate, 
+    startDate, 
+    endDate, 
+    setActiveTab, 
+    userData, 
+    activeTab, 
+    handleSelect, 
+    tableData, 
+    columns, 
+    fetchFacebookData, 
+    fetchGoogleData,
+    googleAuth,
+    facebookAuth,
+    isUserGoogleDataLoad,
+    isGoogleTableDataLoad
+}) => {
 
     const [selectedDropdownValue, setSelectedDropdownValue] = useState('');
     const [selectedManagerId, setSelectedManagerId] = useState('');
@@ -61,17 +79,17 @@ const CommonTab = ({setStartDate, setEndDate, startDate, endDate, userData, setA
                     </NavLink>
                   </Nav.Link>
                 </Nav.Item>
-                <Nav.Item>
+                {pathname == "/google" && <Nav.Item>
                   <Nav.Link eventKey="second" className="nav_link_tab">
                     <NavLink>
                       <span className="tab2">2</span> Select ad account
                     </NavLink>
                   </Nav.Link>
-                </Nav.Item>
+                </Nav.Item>}
                 <Nav.Item>
                   <Nav.Link eventKey="third" className="nav_link_tab">
                     <NavLink>
-                      <span className="tab3">3</span> Results
+                      <span className="tab3">{pathname == "/google" ? '3': '2'}</span> Results
                     </NavLink>
                   </Nav.Link>
                 </Nav.Item>
@@ -90,10 +108,12 @@ const CommonTab = ({setStartDate, setEndDate, startDate, endDate, userData, setA
                 </OuterDiv>
               </Tab.Pane>
 
+                {pathname == "/google" && 
               <Tab.Pane eventKey="second">
                 <OuterDiv>
                   <div className="add_account_outer">
                     <h5>Authorized with {userData[0]?.m_id}</h5>
+                    <div className="d-flex align-items-center gap-2">
                     <Form.Select
                       onChange={(e) => handleSelectChange(e)}
                       aria-label="Default select example"
@@ -113,6 +133,16 @@ const CommonTab = ({setStartDate, setEndDate, startDate, endDate, userData, setA
                         );
                       })}
                     </Form.Select>
+                    {isUserGoogleDataLoad && 
+                    <Spinner
+                      as="span"
+                      animation="border"
+                      size="sm"
+                      role="status"
+                      aria-hidden="true"
+                    />
+                    }
+                    </div>
                     <div className="d-flex justify-content-end mt-3">
                       <Button
                         disabled={selectedDropdownValue == ""}
@@ -125,6 +155,7 @@ const CommonTab = ({setStartDate, setEndDate, startDate, endDate, userData, setA
                   </div>
                 </OuterDiv>
               </Tab.Pane>
+              }
 
               <Tab.Pane eventKey="third">
                 <OuterDiv>
@@ -137,7 +168,12 @@ const CommonTab = ({setStartDate, setEndDate, startDate, endDate, userData, setA
                     selectedManagerId={selectedManagerId}
                     tableData={tableData}
                     columns={columns}
-                    handleSubmit={handleSubmit}
+                    pathname={pathname}
+                    fetchFacebookData={fetchFacebookData} 
+                    fetchGoogleData={fetchGoogleData}
+                    googleAuth={googleAuth}
+                    facebookAuth={facebookAuth}
+                    isGoogleTableDataLoad={isGoogleTableDataLoad}
                   />
                 </OuterDiv>
               </Tab.Pane>

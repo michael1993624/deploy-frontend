@@ -28,11 +28,10 @@ function App() {
         return { service_type, access_token: token };
     }
 }
+  const currentUrl = window.location.href;
 
   useEffect(() => {
-    const currentUrl = window.location.href;
     const {access_token, service_type} = extractCodeFromUrl(currentUrl);
-    console.log({service_type})
     if (service_type !== null && service_type == "google") {
         setToken(access_token);
         localStorage.setItem('urlToken', access_token);
@@ -43,7 +42,7 @@ function App() {
         window.location.href = "/facebook"
       }
     }
-  }, []);
+  }, [currentUrl]);
 
   return (
     <>

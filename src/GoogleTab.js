@@ -7,10 +7,13 @@ const GoogleTab = ({setStartDate, setEndDate, startDate, endDate}) => {
     const [userData, setUserData] = useState([]);
 
     const [activeTab, setActiveTab] = useState('first');
+    const [isUserGoogleDataLoad, setIsUserGoogleDataLoad] =  useState(false);
+    const [isGoogleTableDataLoad, setIsGoogleTableDataLoad] = useState(false);
 
     const fetchUserData = async (token) => {
         const url = process.env.REACT_APP_SERVER + ""
         try {
+          setIsUserGoogleDataLoad(true);
           const response = await fetch(`${url}/get_customer`, {
             method: "GET",
             headers: {
@@ -18,9 +21,11 @@ const GoogleTab = ({setStartDate, setEndDate, startDate, endDate}) => {
               "Authorization": token
             },
           });
+          setIsUserGoogleDataLoad(false);
           const data = await response.json();
           setUserData(data)
         } catch (error) {
+          setIsUserGoogleDataLoad(false);
           console.error('Error fetching data:', error);
         }
     };
@@ -52,9 +57,10 @@ const GoogleTab = ({setStartDate, setEndDate, startDate, endDate}) => {
     const [tableData, setTableData] = useState([]);
     const [columns, setColumns] = useState([]);
 
-    const fetchData = async (inputData, authToken) => {  
+    const fetchGoogleData = async (inputData, authToken) => {  
         const url = process.env.REACT_APP_SERVER + ""
         try {
+          setIsGoogleTableDataLoad(true)
           const response = await fetch(`${url}/google_ads_by_id`, {
             method: "POST",
             headers: {
@@ -63,6 +69,7 @@ const GoogleTab = ({setStartDate, setEndDate, startDate, endDate}) => {
             },
             body: JSON.stringify(inputData)
           });
+          setIsGoogleTableDataLoad(false)
           const data = await response.json();
           if (data && Array.isArray(data) && data.length > 0) {
             const columnKeys = Object.keys(data[0]);
@@ -71,21 +78,11 @@ const GoogleTab = ({setStartDate, setEndDate, startDate, endDate}) => {
             setTableData(data);
           }
         } catch (error) {
+          setIsGoogleTableDataLoad(false)
           console.error('Error fetching data:', error);
         }
       };
-    
-      const handleSubmit = (userId, selectedManagerId) => {
-        const userData = {
-          "customer_id": userId,
-          "start_date": startDate,
-          "end_date": endDate,
-          "manager_id": selectedManagerId
-        }
-        if (authToken !== "null") {
-            fetchData(userData, authToken);
-        }
-      };
+
 
   return (
     <CommonTab 
@@ -100,7 +97,10 @@ const GoogleTab = ({setStartDate, setEndDate, startDate, endDate}) => {
         handleSelect={handleSelect}
         columns={columns}
         tableData={tableData}
-        handleSubmit={handleSubmit}
+        fetchGoogleData={fetchGoogleData}
+        googleAuth={authToken}
+        isUserGoogleDataLoad={isUserGoogleDataLoad}
+        isGoogleTableDataLoad={isGoogleTableDataLoad}
     />
   );
 };

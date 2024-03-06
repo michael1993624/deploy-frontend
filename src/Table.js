@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Button from "react-bootstrap/Button";
+import Spinner from 'react-bootstrap/Spinner';
 
 const CardContainer = styled.div`
   border-radius: 8px;
@@ -42,7 +43,22 @@ const DateContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-function Table({ setStartDate, setEndDate, startDate, endDate, selectedDropdownValue, selectedManagerId, tableData, columns, handleSubmit }) {
+function Table({ 
+  setStartDate, 
+  setEndDate, 
+  startDate, 
+  endDate, 
+  selectedDropdownValue, 
+  selectedManagerId, 
+  tableData, 
+  columns, 
+  pathname,
+  fetchFacebookData, 
+  fetchGoogleData,
+  googleAuth,
+  facebookAuth,
+  isGoogleTableDataLoad
+}) {
 
     const handleStartDateChange = (date) => {
       const formattedDate = date
@@ -70,13 +86,35 @@ function Table({ setStartDate, setEndDate, startDate, endDate, selectedDropdownV
       setEndDate(formattedDate);
     };
 
+    const handleSubmit = (userId, selectedManagerId, path) => {
+      if (path == "/google") {
+          const userData = {
+            "customer_id": userId,
+            "start_date": startDate,
+            "end_date": endDate,
+            "manager_id": selectedManagerId
+          }
+          if (googleAuth !== "null") {
+              fetchGoogleData(userData, googleAuth);
+          }
+      }else {
+          const userData = {
+              "start_date": startDate,
+              "end_date": endDate
+            }
+          if (facebookAuth !== "null") {
+              fetchFacebookData(userData, facebookAuth);
+          }
+      }
+    };
+
 
   return (
     <CardContainer>
-      <label>
+      {pathname == '/google' && <label>
         User ID:
         <input type="text" readOnly value={selectedDropdownValue} />
-      </label>
+      </label>}
       <DateContainer>
         <label>Start Date:</label>
         <DatePicker
@@ -93,7 +131,7 @@ function Table({ setStartDate, setEndDate, startDate, endDate, selectedDropdownV
           placeholderText="End Date"
         />
       </DateContainer>
-      <Button onClick={() => handleSubmit(selectedDropdownValue, selectedManagerId)}  variant="primary">Submit</Button>{" "}
+      <Button onClick={() => handleSubmit(selectedDropdownValue, selectedManagerId, pathname)}  variant="primary">Submit</Button>{" "}
       <StyledTable>
         <thead>
           <StyledTr>
@@ -112,6 +150,15 @@ function Table({ setStartDate, setEndDate, startDate, endDate, selectedDropdownV
           ))}
         </tbody>
       </StyledTable>
+      {isGoogleTableDataLoad && 
+        <Spinner
+          as="span"
+          animation="border"
+          size="sm"
+          role="status"
+          aria-hidden="true"
+        />
+      }
     </CardContainer>
   );
 }
