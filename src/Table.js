@@ -100,7 +100,8 @@ function Table({
       }else {
           const userData = {
               "start_date": startDate,
-              "end_date": endDate
+              "end_date": endDate,
+              "id": userId
             }
           if (facebookAuth !== "null") {
               fetchFacebookData(userData, facebookAuth);
@@ -108,6 +109,7 @@ function Table({
       }
     };
 
+    console.log(tableData,"----testing...");
 
   return (
     <CardContainer>

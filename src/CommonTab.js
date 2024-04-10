@@ -10,6 +10,8 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import React, { useState } from "react";
 import { useLocation } from 'react-router-dom';
+import GoogleSubTab from "./GoogleSubTab";
+import FacebookSubTab from "./FacebookSubTab";
 
 const CommonTab = ({ 
     setStartDate, 
@@ -27,7 +29,9 @@ const CommonTab = ({
     googleAuth,
     facebookAuth,
     isUserGoogleDataLoad,
-    isGoogleTableDataLoad
+    isGoogleTableDataLoad,
+    facebookDataList,
+    isUserFacebookDataLoad
 }) => {
 
     const [selectedDropdownValue, setSelectedDropdownValue] = useState('');
@@ -59,6 +63,20 @@ const CommonTab = ({
         setSelectedDropdownValue(value);
     }
 
+    const buttonValue = googleAuth == "null" || googleAuth == null && pathname == "/google" || facebookAuth == "null" || facebookAuth == null && pathname == "/facebook" ?  'Connect' : "Reconnect"
+
+
+    const handleReconnect = (value) => {
+      if (value === "Reconnect") {
+        if (pathname == "/google") {
+          localStorage.removeItem("urlToken");
+          window.location.href = "/google"
+        }else {
+          localStorage.removeItem("facebook_access_token");
+          window.location.href = "/facebook"
+        }
+      }
+    }
 
   return (
     <Container>
@@ -79,17 +97,20 @@ const CommonTab = ({
                     </NavLink>
                   </Nav.Link>
                 </Nav.Item>
-                {pathname == "/google" && <Nav.Item>
+                <Nav.Item>
                   <Nav.Link eventKey="second" className="nav_link_tab">
                     <NavLink>
                       <span className="tab2">2</span> Select ad account
                     </NavLink>
                   </Nav.Link>
-                </Nav.Item>}
+                </Nav.Item>
                 <Nav.Item>
                   <Nav.Link eventKey="third" className="nav_link_tab">
                     <NavLink>
-                      <span className="tab3">{pathname == "/google" ? '3': '2'}</span> Results
+                      <span className="tab3">
+                        {pathname == "/google" ? "3" : "2"}
+                      </span>{" "}
+                      Results
                     </NavLink>
                   </Nav.Link>
                 </Nav.Item>
@@ -100,62 +121,36 @@ const CommonTab = ({
             <Tab.Content>
               <Tab.Pane eventKey="first">
                 <OuterDiv>
-                  <div className="login_btn text-center">
+                  <div
+                    onClick={() => handleReconnect(buttonValue)}
+                    className="login_btn text-center"
+                  >
                     <Button onClick={handleUserAuthenticate} variant="primary">
-                      Authenticate
+                      {buttonValue}
                     </Button>{" "}
                   </div>
                 </OuterDiv>
               </Tab.Pane>
 
-                {pathname == "/google" && 
-              <Tab.Pane eventKey="second">
-                <OuterDiv>
-                  <div className="add_account_outer">
-                    <h5>Authorized with {userData[0]?.m_id}</h5>
-                    <div className="d-flex align-items-center gap-2">
-                    <Form.Select
-                      onChange={(e) => handleSelectChange(e)}
-                      aria-label="Default select example"
-                    >
-                      <option>Open this select menu</option>
-                      {userData.map((item, index) => {
-                        return (
-                          <>
-                            <option
-                              data-mid={item.m_id}
-                              key={index}
-                              value={item.id}
-                            >
-                              {item.name} - ({item.id})
-                            </option>
-                          </>
-                        );
-                      })}
-                    </Form.Select>
-                    {isUserGoogleDataLoad && 
-                    <Spinner
-                      as="span"
-                      animation="border"
-                      size="sm"
-                      role="status"
-                      aria-hidden="true"
-                    />
-                    }
-                    </div>
-                    <div className="d-flex justify-content-end mt-3">
-                      <Button
-                        disabled={selectedDropdownValue == ""}
-                        onClick={() => setActiveTab("third")}
-                        variant="primary"
-                      >
-                        Continue
-                      </Button>{" "}
-                    </div>
-                  </div>
-                </OuterDiv>
-              </Tab.Pane>
-              }
+              {pathname == "/google" && (
+                <GoogleSubTab
+                  handleSelectChange={handleSelectChange}
+                  userData={userData}
+                  isUserGoogleDataLoad={isUserGoogleDataLoad}
+                  setActiveTab={setActiveTab}
+                  selectedDropdownValue={selectedDropdownValue}
+                />
+              )}
+
+              {pathname == "/facebook" && (
+                <FacebookSubTab
+                  handleSelectChange={handleSelectChange}
+                  facebookDataList={facebookDataList}
+                  isUserFacebookDataLoad={isUserFacebookDataLoad}
+                  setActiveTab={setActiveTab}
+                  selectedDropdownValue={selectedDropdownValue}
+                />
+              )}
 
               <Tab.Pane eventKey="third">
                 <OuterDiv>
@@ -169,7 +164,7 @@ const CommonTab = ({
                     tableData={tableData}
                     columns={columns}
                     pathname={pathname}
-                    fetchFacebookData={fetchFacebookData} 
+                    fetchFacebookData={fetchFacebookData}
                     fetchGoogleData={fetchGoogleData}
                     googleAuth={googleAuth}
                     facebookAuth={facebookAuth}

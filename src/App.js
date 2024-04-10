@@ -27,7 +27,7 @@ function App() {
     } else {
         return { service_type, access_token: token };
     }
-}
+  }
   const currentUrl = window.location.href;
 
   useEffect(() => {
