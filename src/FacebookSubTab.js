@@ -17,7 +17,7 @@ const FacebookSubTab = ({
     <Tab.Pane eventKey="second">
       <OuterDiv>
         <div className="add_account_outer">
-          {/* <h5>Authorized with {userData[0]?.m_id}</h5> */}
+          <h5>Authorized with {facebookDataList[0]?.account_id}</h5>
           <div className="d-flex align-items-center gap-2">
             <Form.Select
               onChange={(e) => handleSelectChange(e)}
@@ -32,7 +32,7 @@ const FacebookSubTab = ({
                       key={index}
                       value={item.account_id}
                     >
-                      ({item.account_id})
+                    {item.business_name ? item.business_name : "user"} -  ({item.account_id})
                     </option>
                   </>
                 );
