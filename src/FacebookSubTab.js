@@ -30,7 +30,7 @@ const FacebookSubTab = ({
                     <option
                       data-mid={item.m_id}
                       key={index}
-                      value={item.account_id}
+                      value={item.id}
                     >
                     {item.business_name ? item.business_name : "user"} -  ({item.account_id})
                     </option>
